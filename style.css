@@ -1,0 +1,23 @@
+.top, .bottom{
+    border:black 3px solid;
+    border-radius: 10px;
+    height:60px;
+    width:44px;
+    margin:20px;
+    display:inline-block;
+}
+
+.empty{
+    border-color:white;
+}
+
+.card{
+    height:60px;
+    width:44px;
+}
+
+/*
+body{
+    background-image: url('cards/1_1.png');
+}
+*/
