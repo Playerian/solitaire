@@ -28,6 +28,14 @@
     border-color:white;
 }
 
+.unclickable{
+    pointer-events: none;
+}
+
+.holding{
+    border:yellow 3px solid;
+}
+
 /*
 body{
     background-image: url('cards/1_1.png');

@@ -10,6 +10,9 @@ $(document).ready(function(){
     var cards = {};
     var trash = [];
     var reveal = [];
+    var holding = false;
+    var holder;
+    var intervaling = false;
     
     //misc functions
     function duang(thing, string){
@@ -104,7 +107,11 @@ $(document).ready(function(){
                     if (card.show === true){
                             element.attr("src", "cards/" + card.number + "_" + card.suit + ".png");
                         } else {
+                            element.addClass("unclickable");
                             element.attr("src", "cards/back.png");
+                    }
+                    if (holder === card){
+                        element.addClass("holding");
                     }
                     $("#c"+i).append(element);
                 }
@@ -116,6 +123,7 @@ $(document).ready(function(){
                 var element = $("<img>").attr("class","card");
                 element.attr("id", i);
                 element.addClass("trash");
+                element.addClass("unclickable");
                 element.attr("src", "cards/back.png");
                 $("#trash").append(element);
             }
@@ -124,28 +132,43 @@ $(document).ready(function(){
         for (var i = 0; i < reveal.length; i ++){
             var card = cards[reveal[i]];
             var element = $("<img>").attr("class","card");
-            element.attr("id", i);
+            element.attr("id", reveal[i]);
             element.addClass("reveal");
             if (card.show === true){
                 element.attr("src", "cards/" + card.number + "_" + card.suit + ".png");
             } else {
                 element.attr("src", "cards/back.png");
             }
+            if (holder === card){
+                element.addClass("holding");
+            }
             $("#reveal").append(element);
         }
+        
+        //add click handlers onto all the cards
+        cardClickF();
     };
     
     render();
-
-    setInterval(function(){
-        window.cards = cards;
-        window.render = render;
-        window.trash = trash;
-        window.reveal = reveal;
-    }, 2000);
+    
+    if (intervaling === false){
+        intervaling = true;
+        setInterval(function(){
+            window.cards = cards;
+            window.render = render;
+            window.trash = trash;
+            window.reveal = reveal;
+            window.holding = holding;
+            window.holder = holder;
+        }, 2000);
+    }
+    
     
     //open the trash
     $("#trash").click(function(){
+        //clear all selections
+        holding = false;
+        holder = undefined;
         //reveal a card if trash is not empty
         if (trash.length > 0){
             var card = trash.shift();
@@ -157,14 +180,39 @@ $(document).ready(function(){
             //pre-record the length of reveal
             var length = reveal.length;
             for (var i = 0; i < length; i ++){
+                //change them into facedown
+                var card = reveal.shift();
+                cards[card].show = false;
                 //shift back
-                trash.push(reveal.shift());
+                trash.push(card);
             }
             render();
         }
     });
     
-    
+    //moving the cards
+    function cardClickF(){
+        //clicking cards at reveal
+        //clicking cards at field
+        $(".card").click(function(){
+            var card = cards[parseInt($(this).attr("id"))];
+            console.log(card);
+            //check if card is face up
+            if (card.show === true){
+                //release a card if holding a card
+                if (holding === true){
+                    //check if releasing onto the right card
+                }
+                //take up a card if holding nothing
+                if (holding === false){
+                    holding = true;
+                    holder = card;
+                }
+            }
+            
+            render();
+        });
+    }
     
     
     
