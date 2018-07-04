@@ -23,7 +23,7 @@
     width:44px;
 }
 
-.trash{
+.trash, .reveal{
     position:absolute;
     border-color:white;
 }

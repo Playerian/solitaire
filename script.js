@@ -8,6 +8,8 @@
 */
 $(document).ready(function(){
     var cards = {};
+    var trash = [];
+    var reveal = [];
     
     //misc functions
     function duang(thing, string){
@@ -20,16 +22,21 @@ $(document).ready(function(){
     
     //card functions
     function setCard(num, suit){
+        this.name = (num - 1) * 4 + suit;
         this.number = num;
         this.suit = suit;
         this.row = 0;
         this.column = 0;
-        this.inTrash = false;
+        this.inTrash = function(){
+            if (trash.includes(this.name)){
+                return true;
+            } else {
+                return false;
+            }
+        };
         this.inFound = false;
-        this.trashZ = 0;
         this.foundZ = 0;
         this.show = false;
-        this.name = (num - 1) * 4 + suit;
     }
     
     function getCard(num, suit){
@@ -38,7 +45,7 @@ $(document).ready(function(){
     
     function getCardPos(column, row){
         for (var i = 1; i <= 52; i ++){
-            if (cards[i].row === row && cards[i].inTrash === false && cards[i].inFound === false){
+            if (cards[i].row === row && cards[i].inTrash() === false && cards[i].inFound === false){
                 if (cards[i].column === column){
                     return cards[i];
                 }
@@ -78,8 +85,7 @@ $(document).ready(function(){
     for (var i = 0; i < deck.length; i ++){
         var card = deck[randomInt(0, deck.length - 1)];
         duang(deck, card);
-        cards[card].inTrash = true;
-        cards[card].trashZ = i + 1;
+        trash.push(card);
     }
     
     //rendering
@@ -104,28 +110,58 @@ $(document).ready(function(){
                 }
             }
         }
-        //render in waste
+        //render in trash
         for (var i = 1; i <= 52; i ++){
-            if (cards[i].inTrash){
+            if (cards[i].inTrash()){
                 var element = $("<img>").attr("class","card");
                 element.attr("id", i);
                 element.addClass("trash");
                 element.attr("src", "cards/back.png");
-                $("#waste").append(element);
+                $("#trash").append(element);
             }
+        }
+        //render in reveal
+        for (var i = 0; i < reveal.length; i ++){
+            var card = cards[reveal[i]];
+            var element = $("<img>").attr("class","card");
+            element.attr("id", i);
+            element.addClass("reveal");
+            if (card.show === true){
+                element.attr("src", "cards/" + card.number + "_" + card.suit + ".png");
+            } else {
+                element.attr("src", "cards/back.png");
+            }
+            $("#reveal").append(element);
         }
     };
     
-    window.render = render;
     render();
 
     setInterval(function(){
         window.cards = cards;
+        window.render = render;
+        window.trash = trash;
+        window.reveal = reveal;
     }, 2000);
     
     //open the trash
     $("#trash").click(function(){
-        
+        //reveal a card if trash is not empty
+        if (trash.length > 0){
+            var card = trash.shift();
+            reveal.push(card);
+            cards[card].show = true;
+            render();
+        } else{
+            //..else place reveals back into the trash
+            //pre-record the length of reveal
+            var length = reveal.length;
+            for (var i = 0; i < length; i ++){
+                //shift back
+                trash.push(reveal.shift());
+            }
+            render();
+        }
     });
     
     
