@@ -428,8 +428,13 @@ $(document).ready(function(){
                     }
                     //move them under the column
                     for (var i = 0; i < list.length; i ++){
+                        //move to correct place
                         list[i].column = parseInt(column);
                         list[i].row = i + 1;
+                    }
+                    //if holder is in trash, remove from travel(or reveal)
+                    if (holder.inTrash() === true){
+                        duang(reveal, holder.name);
                     }
                     //remove holding status
                     holder = undefined;
