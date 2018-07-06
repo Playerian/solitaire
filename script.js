@@ -6,6 +6,7 @@
 3 -- heart
 4 -- spade
 */
+var a = 1;
 $(document).ready(function(){
     var cards = {};
     var trash = [];
@@ -83,7 +84,8 @@ $(document).ready(function(){
     function columnHeight(columnNo){
         var count = 0;
         for (var i = 1; i <= 52; i++){
-            if (cards[i].column === columnNo){
+            var c = cards[i].column;
+            if (parseInt(cards[i].column) === parseInt(columnNo)){
                 count ++;
             }
         }
@@ -124,16 +126,8 @@ $(document).ready(function(){
         trash.push(card);
     }
     
-    //preloading
-    function preload(){
-        for (var i = 1; i <= 52; i ++){
-            var element = $("<img>").attr("class","preload");
-            element.attr("src", "cards/" + card.number + "_" + card.suit + ".png");
-            $("body").append(element);
-        }
-        $(".preload").hide();
-    }
-    preload();
+    //hides preload docs
+    $(".preload").hide();
     
     //rendering
     function render(){
@@ -271,9 +265,6 @@ $(document).ready(function(){
                             //then check if able to move
                             if (holder.isDiffColor(card) && holder.isOneLower(card)){
                                 //if holder is on the field
-                                console.log(holder);
-                                console.log(card);
-                                console.log(holder.inTrash());
                                 if (holder.inTrash() === false){
                                     //if so then move the the holder and cards under holder under the card
                                     //put all cards under the holder into a list
@@ -328,15 +319,11 @@ $(document).ready(function(){
     
     //move card to empty space (Kings only btw)
     $(".bottom").click(function(){
-        console.log(cards);
         var column = $(this).attr("id")[1];
-        console.log(column);
-        console.log("column height: "+columnHeight(column));
         //check if holding a card and is a king
         if (holding === true){
             if (holder.number === 13){
                 //check if column is empty
-                console.log("column height: "+columnHeight(column));
                 if (columnHeight(column) === 0){
                     //if it's empty then move the whole thing under it
                     //gathering list(done by c & p)
