@@ -152,7 +152,9 @@ $(document).ready(function(){
         return count;
     }
     
-    //card declare
+    //init function
+    function init(){
+        //card declare
     for (var i = 1; i <= 13; i ++){
         for (var i2 = 1; i2 <= 4; i2 ++){
             cards[(i - 1) * 4 + i2] = new setCard(i, i2);
@@ -164,6 +166,7 @@ $(document).ready(function(){
     for (var i = 1; i <= 52; i ++){
         deck.push(i);
     }
+    console.log("original deck: "+deck.length);
     
     //place cards to field
     for (var i = 1; i <= 7; i ++){
@@ -179,15 +182,21 @@ $(document).ready(function(){
             }
         }
     }
+    console.log("placed to field: "+deck.length);
     //place cards to trash
-    for (var i = 0; i < deck.length; i ++){
+    var deckLength = deck.length;
+    for (var i = 0; i < deckLength; i ++){
         var card = deck[randomInt(0, deck.length - 1)];
         duang(deck, card);
         trash.push(card);
     }
-    
+    console.log("placed to trash: "+deck.length);
     //hides preload docs
     $(".preload").hide();
+    
+    //render up
+    render();
+    }
     
     //rendering
     function render(){
@@ -271,8 +280,6 @@ $(document).ready(function(){
         cardClickF();
     }
     
-    render();
-    
     if (intervaling === false){
         intervaling = true;
         setInterval(function(){
@@ -283,6 +290,8 @@ $(document).ready(function(){
             window.holding = holding;
             window.holder = holder;
             window.found = found;
+            //function
+            window.duang = duang;
             window.columnHeight = columnHeight;
             window.getCardPos = getCardPos;
         }, 2000);
@@ -478,7 +487,8 @@ $(document).ready(function(){
         
     });
     
-    
+    //initialization at the end
+    init();
     
     
     
