@@ -417,7 +417,8 @@ $(document).ready(function(){
                     //if it's empty then move the whole thing under it
                     //gathering list(done by c & p)
                     var list = [];
-                    for (var i = holder.row; i <= 17; i ++){
+                    list.push(holder);
+                    for (var i = holder.row + 1; i <= 17; i ++){
                         var cardBelow = getCardPos(holder.column, i);
                         if (cardBelow !== undefined){
                             list.push(cardBelow);
