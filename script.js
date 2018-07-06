@@ -6,7 +6,6 @@
 3 -- heart
 4 -- spade
 */
-var a = 1;
 $(document).ready(function(){
     var cards = {};
     var trash = [];
@@ -14,10 +13,18 @@ $(document).ready(function(){
     var holding = false;
     var holder;
     var intervaling = false;
+    var found = {
+        f1: [],
+        f2: [],
+        f3: [],
+        f4: []
+    };
     
     //misc functions
     function duang(thing, string){
-        thing.splice(thing.indexOf(string),1);
+        if (thing.includes(string)){
+            thing.splice(thing.indexOf(string),1);
+        }
     }
     
     function randomInt(min, max) {
@@ -64,6 +71,20 @@ $(document).ready(function(){
             }
             return false;
         };
+        //check if this card is 1 number higher
+        this.isOneHigher = function(card){
+            if (this.number - 1 === card.number){
+                return true;
+            }
+            return false;
+        };
+        //reset pos(change position to 0, 0, also remove from reveal)
+        this.reset = function(){
+            this.row = 0;
+            this.column = 0;
+            duang(trash, this.name);
+            duang(reveal, this.name);
+        }
     }
     
     function getCard(num, suit){
@@ -184,15 +205,26 @@ $(document).ready(function(){
             var element = $("<img>").attr("class","card");
             element.attr("id", reveal[i]);
             element.addClass("reveal");
-            if (card.show === true){
-                element.attr("src", "cards/" + card.number + "_" + card.suit + ".png");
-            } else {
-                element.attr("src", "cards/back.png");
-            }
+            element.attr("src", "cards/" + card.number + "_" + card.suit + ".png");
             if (holder === card){
                 element.addClass("holding");
             }
             $("#reveal").append(element);
+        }
+        //render in foundation
+        for (var i2 = 1; i2 <= 4; i2 ++){
+            var foundation = found["f"+i2];
+            for (var i = 0; i < foundation.length; i ++){
+                var card = foundation[i];
+                var element = $("<img>").attr("class","card");
+                element.attr("id", foundation[i].name);
+                element.addClass("foundCard");
+                element.attr("src", "cards/" + card.number + "_" + card.suit + ".png");
+                if (holder === card){
+                    element.addClass("holding");
+                }
+                $("#f"+i2).append(element);
+            }
         }
         
         //add click handlers onto all the cards
@@ -210,6 +242,7 @@ $(document).ready(function(){
             window.reveal = reveal;
             window.holding = holding;
             window.holder = holder;
+            window.found = found;
         }, 2000);
     }
     
@@ -242,11 +275,11 @@ $(document).ready(function(){
     
     //moving the cards
     function cardClickF(){
-        //clicking cards at reveal
         //clicking cards at field
         $(".card").click(function(){
             var card = cards[parseInt($(this).attr("id"))];
             console.log(card);
+            //main function (just for quick use of return)
             function mainDish(){
                 //check if card is face up
                 if (card.show === true){
@@ -301,6 +334,10 @@ $(document).ready(function(){
                                 return;
                             }
                         }
+                        
+                        
+                        
+                        //end of if holding
                     }
                     //take up a card if holding nothing
                     if (holding === false){
@@ -308,6 +345,7 @@ $(document).ready(function(){
                         holder = card;
                         return;
                     }
+                    //end of if card is face up
                 }
             }
             //just add a function to use return
@@ -350,7 +388,53 @@ $(document).ready(function(){
         }
     });
     
-    
+    //move cards to foundation
+    //when foundation is clicked
+    $(".top").click(function(){
+        var number = parseInt($(this).attr("id")[1]);
+        //check if it's a number
+        if (!isNaN(number)){
+            //if so then the player clicks the foundation (which is an array)
+            var foundation = found["f"+number];
+            //check if holding a card
+            if (holding === true){
+                //check if foundation is empty
+                if (foundation.length === 0){
+                    //check if the card holding is an ace
+                    if (parseInt(holder.number) === 1){
+                        //if so then move the card to foundation
+                        foundation.push(holder);
+                        //reset the card's position
+                        holder.reset();
+                        //remove holding status
+                        holding = false;
+                        holder = undefined;
+                        render();
+                    }
+                } else {
+                    var last = foundation[foundation.length - 1]
+                    //else check if the card that is holding is one more number than the last card in foundation
+                    if (holder.isOneHigher(last)){
+                        //then check if suits are the same
+                        if (holder.suit === last.suit){
+                            //then check if the holder card is the last card at the column
+                            if (getCardPos(holder.column, holder.row + 1) !== undefined){
+                                //if so then move holder to the foundation
+                                foundation.push(holder);
+                                //reset the card's position
+                                holder.reset();
+                                //remove holding status
+                                holding = false;
+                                holder = undefined;
+                                render();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+    });
     
     
     
