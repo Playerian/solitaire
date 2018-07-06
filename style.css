@@ -1,8 +1,8 @@
 .top, .bottom{
     border:black 3px solid;
     border-radius: 10px;
-    height:60px;
-    width:44px;
+    height:120px;
+    width:88px;
     margin:20px;
 }
 
@@ -19,11 +19,11 @@
 }
 
 .card{
-    height:60px;
-    width:44px;
+    height:120px;
+    width:88px;
 }
 
-.trash, .reveal{
+.trash, .reveal, .foundCard{
     position:absolute;
     border-color:white;
 }
@@ -37,8 +37,8 @@
 }
 
 .preload{
-    height:30px;
-    width:22px;
+    height:300px;
+    width:222px;
 }
 
 /*

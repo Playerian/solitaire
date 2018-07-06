@@ -78,13 +78,52 @@ $(document).ready(function(){
             }
             return false;
         };
-        //reset pos(change position to 0, 0, also remove from reveal)
+        //reset pos(change position to 0, 0, also remove from reveal and trash)
         this.reset = function(){
             this.row = 0;
             this.column = 0;
             duang(trash, this.name);
             duang(reveal, this.name);
-        }
+        };
+        //get the whole column of cards of this card's column
+        this.getColumn = function(){
+            if (this.column === 0){
+                return 0;
+            } else {
+                //get all cards of this column
+                var columnCards = [];
+                for (var i = 1; i <= 52; i ++){
+                    var card = cards[i];
+                    if (card.column === this.column){
+                        columnCards.push(card);
+                    }
+                }
+                //sort them by their row
+                var output = [];
+                var breaker = 0;
+                while (columnCards.length > 0){
+                    breaker ++;
+                    if (breaker >= 100){
+                        console.log("exceed maximum loop");
+                        break;
+                    }
+                    for (var i = 0; i < columnCards.length; i ++){
+                        if (columnCards[i].row === 1){
+                            output.push(columnCards[i]);
+                            columnCards.splice(parseInt(i), 1);
+                        }
+                        if (output.length > 0){
+                            if ( parseInt(columnCards[i].row - 1) === parseInt(output[output.length - 1].row) ){
+                                output.push(columnCards[i]);
+                                columnCards.splice(parseInt(i), 1);
+                            }
+                        }
+                    }
+                }
+                //return output
+                return output;
+            }
+        };
     }
     
     function getCard(num, suit){
@@ -219,6 +258,7 @@ $(document).ready(function(){
                 var element = $("<img>").attr("class","card");
                 element.attr("id", foundation[i].name);
                 element.addClass("foundCard");
+                element.addClass("unclickable");
                 element.attr("src", "cards/" + card.number + "_" + card.suit + ".png");
                 if (holder === card){
                     element.addClass("holding");
@@ -243,6 +283,8 @@ $(document).ready(function(){
             window.holding = holding;
             window.holder = holder;
             window.found = found;
+            window.columnHeight = columnHeight;
+            window.getCardPos = getCardPos;
         }, 2000);
     }
     
@@ -412,13 +454,13 @@ $(document).ready(function(){
                         render();
                     }
                 } else {
-                    var last = foundation[foundation.length - 1]
+                    var last = foundation[foundation.length - 1];
                     //else check if the card that is holding is one more number than the last card in foundation
                     if (holder.isOneHigher(last)){
                         //then check if suits are the same
                         if (holder.suit === last.suit){
                             //then check if the holder card is the last card at the column
-                            if (getCardPos(holder.column, holder.row + 1) !== undefined){
+                            if (getCardPos(holder.column, holder.row + 1) === undefined){
                                 //if so then move holder to the foundation
                                 foundation.push(holder);
                                 //reset the card's position
