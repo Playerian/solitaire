@@ -94,7 +94,7 @@ $(document).ready(function(){
                 var columnCards = [];
                 for (var i = 1; i <= 52; i ++){
                     var card = cards[i];
-                    if (card.column === this.column){
+                    if (parseInt(card.column) === parseInt(this.column)){
                         columnCards.push(card);
                     }
                 }
