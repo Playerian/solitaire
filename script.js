@@ -12,13 +12,25 @@ $(document).ready(function(){
     var reveal = [];
     var holding = false;
     var holder;
-    var intervaling = false;
     var found = {
         f1: [],
         f2: [],
         f3: [],
         f4: []
     };
+    var height = 120;
+    var width = 88;
+    var showPercentOfCard = 0.25;
+    var timer;
+    var time = 0;
+    var prebackup = {};
+    var prebackuptrash;
+    var prebackupreveal;
+    var prebackupfound = {};
+    var backup = {};
+    var backuptrash;
+    var backupreveal;
+    var backupfound = {};
     
     //misc functions
     function duang(thing, string){
@@ -29,6 +41,20 @@ $(document).ready(function(){
     
     function randomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1) ) + min;
+    }
+    
+    //object comparisons boi
+    //so hard so far
+    function compare(obj1, obj2){
+        if (typeof(obj1) === "object" && typeof(obj2) === "object"){
+            for (var i = 1; i <= 52; i ++){
+                if (obj1[i] !== obj2[i]){
+                    return false;
+                }
+            }
+            return true;
+        }
+        return undefined;
     }
     
     //card functions
@@ -121,8 +147,6 @@ $(document).ready(function(){
                         columnCards.push(card);
                     }
                 }
-                console.log("columnCards: ");
-                console.log(columnCards);
                 //sort them by their row
                 var output = [];
                 var breaker = 0;
@@ -239,6 +263,58 @@ $(document).ready(function(){
     
     //render up
     render();
+    
+    //set backups
+    console.log("initing");
+    Object.assign(backup, cards);
+    Object.assign(prebackup, cards)
+    backupreveal = reveal;
+    prebackupreveal = reveal;
+    backuptrash = trash;
+    prebackuptrash = trash;
+    Object.assign(backupfound, found);
+    Object.assign(prebackupfound, found); 
+    
+    setInterval(function(){
+        window.cards = cards;
+        window.render = render;
+        window.trash = trash;
+        window.reveal = reveal;
+        window.holding = holding;
+        window.holder = holder;
+        window.found = found;
+        //backups
+        window.backup = backup;
+        window.backuptrash = backuptrash;
+        window.backupreveal = backupreveal;
+        window.prebackuptrash = prebackuptrash;
+        window.prebackup = prebackup;
+        window.prebackupreveal = prebackupreveal;
+        //function
+        window.duang = duang;
+        window.columnHeight = columnHeight;
+        window.getCardPos = getCardPos;
+        window.compare = compare;
+    }, 2000);
+    timer = setInterval(function(){
+        time ++;
+        var second = time;
+        var minute = 0;
+        while (second >= 60){
+            second -= 60;
+            minute ++;
+        }
+        minute = minute.toString(10);
+        second = second.toString(10);
+        while (minute.length < 2){
+            minute = "0" + minute;
+        }
+        while (second.length < 2){
+            second = "0" + second;
+        }
+        $("#timer").text(minute+":"+second);
+    }, 1000);
+    //end of init
     }
     
     //rendering
@@ -274,6 +350,10 @@ $(document).ready(function(){
                         element.addClass("unclickable");
                         element.attr("src", "cards/back.png");
                     }
+                    //add height to each cards
+                    element.css("top", (i2 - 1) * (1 - showPercentOfCard) * height * -1+"px");
+                    //add z-axis to each cards
+                    element.css("z-index", i);
                     //add highlight if holder is same 
                     if (holder === card){
                         //check if holder is last card
@@ -336,25 +416,11 @@ $(document).ready(function(){
         
         //add click handlers onto all the cards
         cardClickF();
+        
+        //render stuff outside the game
+        $(".card, .top, .bottom").css("width", width+"px");
+        $(".card, .top, .bottom").css("height", height+"px");
     }
-    
-    if (intervaling === false){
-        intervaling = true;
-        setInterval(function(){
-            window.cards = cards;
-            window.render = render;
-            window.trash = trash;
-            window.reveal = reveal;
-            window.holding = holding;
-            window.holder = holder;
-            window.found = found;
-            //function
-            window.duang = duang;
-            window.columnHeight = columnHeight;
-            window.getCardPos = getCardPos;
-        }, 2000);
-    }
-    
     
     //open the trash
     $("#trash").click(function(){
@@ -543,8 +609,7 @@ $(document).ready(function(){
                         //then move the card to foundation
                         foundation.push(holder);
                         //remove holding status
-                        holding = false;
-                        holder = undefined;
+                        
                         render();
                     }
                 } else {
@@ -581,8 +646,50 @@ $(document).ready(function(){
         
     });
     
-    //initialization at the end
-    init();
+    //backup plan
+    $(document).click(function(){
+        if (backup !== undefined){
+            //deep logic warning
+            //the end
+            if (!compare(prebackup, cards) || !compare(prebackupreveal, reveal) || !compare(prebackuptrash, trash)){
+                console.log("instance");
+                //cards changes
+                //backup need to store the previous status of cards
+                //so backup is changed into prebackup
+                Object.assign(backup, prebackup);
+                backupreveal = prebackupreveal;
+                backuptrash = prebackuptrash;
+                Object.assign(backupfound, prebackupfound);
+                //then prebackup is change into cards
+                Object.assign(prebackup, cards);
+                prebackupreveal = reveal;
+                prebackuptrash = trash;
+                Object.assign(prebackupfound, found);
+            }
+        }
+    });
+    
+    //start the game
+    $("#start").click(function(){
+        init();
+    });
+    
+    //take back one move
+    $("#tb").click(function(){
+        console.log("lol");
+        Object.assign(cards, backup);
+        reveal = backupreveal;
+        trash = backuptrash;
+        Object.assign(found, backupfound);
+        Object.assign(prebackup, backup)
+        prebackuptrash = backuptrash;
+        prebackupreveal = backupreveal;
+        Object.assign(prebackupfound, backupfound)
+        holding = false;
+        holder = undefined;
+        render();
+    });
+    
     
     
     

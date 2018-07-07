@@ -1,3 +1,4 @@
+/*layout css*/
 .top, .bottom{
     border:black 3px solid;
     border-radius: 10px;
@@ -12,6 +13,13 @@
     display:flex;
 }
 
+.preload{
+    height:1px;
+    width:1px;
+    visibility:hidden;
+}
+
+/*card css*/
 .empty{
     border-color:white;
 }
@@ -19,6 +27,10 @@
 .card, .top, .bottom{
     height:120px;
     width:88px;
+}
+
+.card{
+    position:relative;
 }
 
 .trash, .reveal, .foundCard{
@@ -55,13 +67,27 @@
     border-right:yellow 3px solid;
 }
 
-.preload{
-    height:300px;
-    width:222px;
+
+/*table css*/
+
+#table{
+    float:right;
+    border:solid 2px black;
+    border-radius:50px;
+    width:25%;
+    height:500px;
+    text-align:center;
 }
 
-/*
-body{
-    background-image: url('cards/1_1.png');
+#timer{
+    text-align:center;
+    font-size:50px;
 }
-*/
+
+#start, #tb{
+    text-align:center;
+    font-size:25px;
+    padding:30px;
+    margin:30px;
+}
+
