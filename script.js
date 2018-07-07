@@ -98,6 +98,7 @@ $(document).ready(function(){
                         columnCards.push(card);
                     }
                 }
+                console.log("columnCards: ");
                 console.log(columnCards);
                 //sort them by their row
                 var output = [];
@@ -114,6 +115,8 @@ $(document).ready(function(){
                             columnCards.splice(parseInt(i), 1);
                         }
                         if (output.length > 0){
+                            console.log(output);
+                            console.log(columnCards);
                             if ( parseInt(columnCards[i].row - 1) === parseInt(output[output.length - 1].row) ){
                                 output.push(columnCards[i]);
                                 columnCards.splice(parseInt(i), 1);
