@@ -1,8 +1,6 @@
 .top, .bottom{
     border:black 3px solid;
     border-radius: 10px;
-    height:120px;
-    width:88px;
     margin:20px;
 }
 
@@ -18,7 +16,7 @@
     border-color:white;
 }
 
-.card{
+.card, .top, .bottom{
     height:120px;
     width:88px;
 }
@@ -32,8 +30,29 @@
     pointer-events: none;
 }
 
-.holding{
+.highlight{
+    border-top: yellow 3px solid;
+    border-bottom: none;
+    border-left:yellow 3px solid;
+    border-right:yellow 3px solid;
+}
+
+.highlightLoner{
     border:yellow 3px solid;
+}
+
+.midlight{
+    border-top: none;
+    border-bottom: none;
+    border-left:yellow 3px solid;
+    border-right:yellow 3px solid;
+}
+
+.lowlight{
+    border-top: none;
+    border-bottom: yellow 3px solid;
+    border-left:yellow 3px solid;
+    border-right:yellow 3px solid;
 }
 
 .preload{

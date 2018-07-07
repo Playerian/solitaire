@@ -45,8 +45,26 @@ $(document).ready(function(){
                 return false;
             }
         };
-        this.inFound = false;
-        this.foundZ = 0;
+        this.inFound = function(){
+            for (var i = 1; i <= 4; i ++){
+                if (found["f"+i].includes(this)){
+                    return true;
+                }
+            }
+            return false;
+        };
+        this.foundNo = function(){
+            if (this.inFound() === true){
+                for (var i = 1; i <= 4; i ++){
+                    if (found["f"+i].includes(this)){
+                        return i;
+                    }
+                }
+            } else{
+                return undefined;
+            }
+        };
+        this.zAxis = 0;
         this.show = false;
         //check if another card is different color
         this.isDiffColor = function(card){
@@ -78,12 +96,17 @@ $(document).ready(function(){
             }
             return false;
         };
-        //reset pos(change position to 0, 0, also remove from reveal and trash)
+        //reset pos(change position to 0, 0, also remove from reveal and trash and foundation)
         this.reset = function(){
             this.row = 0;
             this.column = 0;
-            duang(trash, this.name);
-            duang(reveal, this.name);
+            if (this.inTrash() === true){
+                duang(trash, this.name);
+                duang(reveal, this.name);
+            }
+            if (this.inFound() === true){
+                duang(found["f"+this.foundNo()], this);
+            }
         };
         //get the whole column of cards of this card's column
         this.getColumn = function(){
@@ -94,10 +117,12 @@ $(document).ready(function(){
                 var columnCards = [];
                 for (var i = 1; i <= 52; i ++){
                     var card = cards[i];
-                    if (card.column === this.column){
+                    if (parseInt(card.column) === parseInt(this.column)){
                         columnCards.push(card);
                     }
                 }
+                console.log("columnCards: ");
+                console.log(columnCards);
                 //sort them by their row
                 var output = [];
                 var breaker = 0;
@@ -112,10 +137,12 @@ $(document).ready(function(){
                             output.push(columnCards[i]);
                             columnCards.splice(parseInt(i), 1);
                         }
-                        if (output.length > 0){
-                            if ( parseInt(columnCards[i].row - 1) === parseInt(output[output.length - 1].row) ){
-                                output.push(columnCards[i]);
-                                columnCards.splice(parseInt(i), 1);
+                        if (output.length > 0 && output[output.length - 1] !== undefined){
+                            if (columnCards.length > 0 && columnCards[i] !== undefined){
+                                if ( parseInt(columnCards[i].row - 1) === parseInt(output[output.length - 1].row) ){
+                                    output.push(columnCards[i]);
+                                    columnCards.splice(parseInt(i), 1);
+                                }
                             }
                         }
                     }
@@ -123,6 +150,22 @@ $(document).ready(function(){
                 //return output
                 return output;
             }
+        };
+        //check if this card is below holding 
+        this.isBelowHolder = function(){
+            if (holding === true){
+                //get holder's column and check if columns are the same 
+                var column = holder.column;
+                if (column === this.column){
+                    //if so check if this card is below holder
+                    if (holder.row < this.row){
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            return undefined;
         };
     }
     
@@ -132,7 +175,7 @@ $(document).ready(function(){
     
     function getCardPos(column, row){
         for (var i = 1; i <= 52; i ++){
-            if (cards[i].row === row && cards[i].inTrash() === false && cards[i].inFound === false){
+            if (cards[i].row === row && cards[i].inTrash() === false && cards[i].inFound() === false){
                 if (cards[i].column === column){
                     return cards[i];
                 }
@@ -226,13 +269,28 @@ $(document).ready(function(){
                     element.addClass("c"+i);
                     element.addClass("r"+i2);
                     if (card.show === true){
-                            element.attr("src", "cards/" + card.number + "_" + card.suit + ".png");
-                        } else {
-                            element.addClass("unclickable");
-                            element.attr("src", "cards/back.png");
+                        element.attr("src", "cards/" + card.number + "_" + card.suit + ".png");
+                    } else {
+                        element.addClass("unclickable");
+                        element.attr("src", "cards/back.png");
                     }
+                    //add highlight if holder is same 
                     if (holder === card){
-                        element.addClass("holding");
+                        //check if holder is last card
+                        if (holder.getColumn()[holder.getColumn().length - 1] === holder){
+                            element.addClass("highlightLoner");
+                        } else {
+                            element.addClass("highlight");
+                        }
+                    }
+                    //add midlight if below holder
+                    //add lowlight if last below holder
+                    if (card.isBelowHolder() === true){
+                        if (card.getColumn()[card.getColumn().length - 1] === card){
+                            element.addClass("lowlight");
+                        } else {
+                            element.addClass("midlight");
+                        }
                     }
                     $("#c"+i).append(element);
                 }
@@ -255,7 +313,7 @@ $(document).ready(function(){
             element.addClass("reveal");
             element.attr("src", "cards/" + card.number + "_" + card.suit + ".png");
             if (holder === card){
-                element.addClass("holding");
+                element.addClass("highlight");
             }
             $("#reveal").append(element);
         }
@@ -270,7 +328,7 @@ $(document).ready(function(){
                 element.addClass("unclickable");
                 element.attr("src", "cards/" + card.number + "_" + card.suit + ".png");
                 if (holder === card){
-                    element.addClass("holding");
+                    element.addClass("highlight");
                 }
                 $("#f"+i2).append(element);
             }
@@ -345,11 +403,11 @@ $(document).ready(function(){
                         }
                         //check if releasing onto the right card
                         //check if clicked card is not on trash and foundation
-                        if (card.inTrash() === false && card.inFound === false){
+                        if (card.inTrash() === false && card.inFound() === false){
                             //then check if able to move
-                            if (holder.isDiffColor(card) && holder.isOneLower(card)){
+                            if (holder.isDiffColor(card) && holder.isOneLower(card) && card.getColumn()[card.getColumn().length - 1] === card){
                                 //if holder is on the field
-                                if (holder.inTrash() === false){
+                                if (holder.inTrash() === false && holder.inFound() === false){
                                     //if so then move the the holder and cards under holder under the card
                                     //put all cards under the holder into a list
                                     var list = [];
@@ -373,10 +431,19 @@ $(document).ready(function(){
                                     }
                                 } else {
                                     //if in trash then move directly to field
-                                    holder.column = card.column;
-                                    holder.row = card.row + 1;
-                                    //also remove holder in reveal pile
-                                    duang(reveal, holder.name);
+                                    if (holder.inTrash() === true){
+                                        holder.column = card.column;
+                                        holder.row = card.row + 1;
+                                        //also remove holder in reveal pile
+                                        duang(reveal, holder.name);
+                                    }
+                                    //if in foundation then remove foundation status
+                                    if (holder.inFound() === true){
+                                        holder.column = card.column;
+                                        holder.row = card.row + 1;
+                                        //same as trash
+                                        duang(found["f"+holder.foundNo()], holder);
+                                    }
                                 }
                                 //remove holding status
                                 holding = false;
@@ -417,7 +484,8 @@ $(document).ready(function(){
                     //if it's empty then move the whole thing under it
                     //gathering list(done by c & p)
                     var list = [];
-                    for (var i = holder.row; i <= 17; i ++){
+                    list.push(holder);
+                    for (var i = holder.row + 1; i <= 17; i ++){
                         var cardBelow = getCardPos(holder.column, i);
                         if (cardBelow !== undefined){
                             list.push(cardBelow);
@@ -427,8 +495,17 @@ $(document).ready(function(){
                     }
                     //move them under the column
                     for (var i = 0; i < list.length; i ++){
+                        //move to correct place
                         list[i].column = parseInt(column);
                         list[i].row = i + 1;
+                    }
+                    //if holder is in trash, remove from travel(or reveal)
+                    if (holder.inTrash() === true){
+                        duang(reveal, holder.name);
+                    }
+                    //if holder is in foundation, then the player is dumb
+                    if (holder.inFound() === true){
+                        duang(found["f"+holder.foundNo()], holder);
                     }
                     //remove holding status
                     holder = undefined;
@@ -439,9 +516,9 @@ $(document).ready(function(){
         }
     });
     
-    //move cards to foundation
-    //when foundation is clicked
+    //when top row is clicked
     $(".top").click(function(){
+        //move cards to foundation
         var number = parseInt($(this).attr("id")[1]);
         //check if it's a number
         if (!isNaN(number)){
@@ -449,14 +526,22 @@ $(document).ready(function(){
             var foundation = found["f"+number];
             //check if holding a card
             if (holding === true){
+                //check if holding card is in foundation
+                if (holder.inFound() === true){
+                    //wat wat wat wat wat wat wat
+                    holding = false;
+                    holder = undefined;
+                    render();
+                    return;
+                }
                 //check if foundation is empty
                 if (foundation.length === 0){
                     //check if the card holding is an ace
                     if (parseInt(holder.number) === 1){
-                        //if so then move the card to foundation
-                        foundation.push(holder);
                         //reset the card's position
                         holder.reset();
+                        //then move the card to foundation
+                        foundation.push(holder);
                         //remove holding status
                         holding = false;
                         holder = undefined;
@@ -470,10 +555,10 @@ $(document).ready(function(){
                         if (holder.suit === last.suit){
                             //then check if the holder card is the last card at the column
                             if (getCardPos(holder.column, holder.row + 1) === undefined){
-                                //if so then move holder to the foundation
-                                foundation.push(holder);
                                 //reset the card's position
                                 holder.reset();
+                                //then move holder to the foundation
+                                foundation.push(holder);
                                 //remove holding status
                                 holding = false;
                                 holder = undefined;
@@ -481,6 +566,15 @@ $(document).ready(function(){
                             }
                         }
                     }
+                }
+            } else {
+            //if not holding a card then check if any card is on foundation
+                if (foundation.length > 0){
+                    //if so hold the last card in the foundation
+                    var card = foundation[foundation.length - 1];
+                    holding = true
+                    holder = card;
+                    render();
                 }
             }
         }
