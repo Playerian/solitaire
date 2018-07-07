@@ -115,11 +115,11 @@ $(document).ready(function(){
                             columnCards.splice(parseInt(i), 1);
                         }
                         if (output.length > 0){
-                            console.log(output);
-                            console.log(columnCards);
-                            if ( parseInt(columnCards[i].row - 1) === parseInt(output[output.length - 1].row) ){
-                                output.push(columnCards[i]);
-                                columnCards.splice(parseInt(i), 1);
+                            if (columnCards.length > 0){
+                                if ( parseInt(columnCards[i].row - 1) === parseInt(output[output.length - 1].row) ){
+                                    output.push(columnCards[i]);
+                                    columnCards.splice(parseInt(i), 1);
+                                }
                             }
                         }
                     }
