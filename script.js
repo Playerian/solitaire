@@ -98,6 +98,7 @@ $(document).ready(function(){
                         columnCards.push(card);
                     }
                 }
+                console.log(columnCards);
                 //sort them by their row
                 var output = [];
                 var breaker = 0;
