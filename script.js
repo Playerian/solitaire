@@ -114,8 +114,8 @@ $(document).ready(function(){
                             output.push(columnCards[i]);
                             columnCards.splice(parseInt(i), 1);
                         }
-                        if (output.length > 0){
-                            if (columnCards.length > 0){
+                        if (output.length > 0 && output[output.length - 1] !== undefined){
+                            if (columnCards.length > 0 && columnCards[i] !== undefined){
                                 if ( parseInt(columnCards[i].row - 1) === parseInt(output[output.length - 1].row) ){
                                     output.push(columnCards[i]);
                                     columnCards.splice(parseInt(i), 1);
