@@ -23,6 +23,7 @@ $(document).ready(function(){
     var showPercentOfCard = 0.25;
     var timer;
     var time = 0;
+    var beginned = false;
     
     //misc functions
     function duang(thing, string){
@@ -199,81 +200,96 @@ $(document).ready(function(){
     
     //init function
     function init(){
+        cards = {};
+        trash = [];
+        found = {
+        f1: [],
+        f2: [],
+        f3: [],
+        f4: []};
+        reveal = [];
+        holder = undefined;
+        holding = undefined;
         //card declare
-    for (var i = 1; i <= 13; i ++){
-        for (var i2 = 1; i2 <= 4; i2 ++){
-            cards[(i - 1) * 4 + i2] = new setCard(i, i2);
-        }
-    }
-        
-    //deck create
-    var deck = [];
-    for (var i = 1; i <= 52; i ++){
-        deck.push(i);
-    }
-    console.log("original deck: "+deck.length);
-    
-    //place cards to field
-    for (var i = 1; i <= 7; i ++){
-        for (var i2 = 1; i2 <= i; i2 ++){
-            var card = deck[randomInt(0, deck.length - 1)];
-            duang(deck, card);
-            cards[card].column = i;
-            cards[card].row = i2;
-            if (i == i2){
-                cards[card].show = true;
-            } else {
-                cards[card].show = false;
+        for (var i = 1; i <= 13; i ++){
+            for (var i2 = 1; i2 <= 4; i2 ++){
+                cards[(i - 1) * 4 + i2] = new setCard(i, i2);
             }
         }
-    }
-    console.log("placed to field: "+deck.length);
-    //place cards to trash
-    var deckLength = deck.length;
-    for (var i = 0; i < deckLength; i ++){
-        var card = deck[randomInt(0, deck.length - 1)];
-        duang(deck, card);
-        trash.push(card);
-    }
-    console.log("placed to trash: "+deck.length);
-    //hides preload docs
-    $(".preload").hide();
-    
-    //render up
-    render();
-    
-    setInterval(function(){
-        window.cards = cards;
-        window.render = render;
-        window.trash = trash;
-        window.reveal = reveal;
-        window.holding = holding;
-        window.holder = holder;
-        window.found = found;
-        //function
-        window.duang = duang;
-        window.columnHeight = columnHeight;
-        window.getCardPos = getCardPos;
-    }, 2000);
-    timer = setInterval(function(){
-        time ++;
-        var second = time;
-        var minute = 0;
-        while (second >= 60){
-            second -= 60;
-            minute ++;
+            
+        //deck create
+        var deck = [];
+        for (var i = 1; i <= 52; i ++){
+            deck.push(i);
         }
-        minute = minute.toString(10);
-        second = second.toString(10);
-        while (minute.length < 2){
-            minute = "0" + minute;
+        console.log("original deck: "+deck.length);
+        
+        //place cards to field
+        for (var i = 1; i <= 7; i ++){
+            for (var i2 = 1; i2 <= i; i2 ++){
+                var card = deck[randomInt(0, deck.length - 1)];
+                duang(deck, card);
+                cards[card].column = i;
+                cards[card].row = i2;
+                if (i == i2){
+                    cards[card].show = true;
+                } else {
+                    cards[card].show = false;
+                }
+            }
         }
-        while (second.length < 2){
-            second = "0" + second;
+        console.log("placed to field: "+deck.length);
+        //place cards to trash
+        var deckLength = deck.length;
+        for (var i = 0; i < deckLength; i ++){
+            var card = deck[randomInt(0, deck.length - 1)];
+            duang(deck, card);
+            trash.push(card);
         }
-        $("#timer").text(minute+":"+second);
-    }, 1000);
-    //end of init
+        console.log("placed to trash: "+deck.length);
+        //hides preload docs
+        $(".preload").hide();
+        
+        //render up
+        render();
+        
+        //only once
+        if (beginned === false){
+            beginned = true;
+            setInterval(function(){
+                window.cards = cards;
+                window.render = render;
+                window.trash = trash;
+                window.reveal = reveal;
+                window.holding = holding;
+                window.holder = holder;
+                window.found = found;
+                //function
+                window.duang = duang;
+                window.columnHeight = columnHeight;
+                window.getCardPos = getCardPos;
+            }, 2000);
+            timer = setInterval(function(){
+                time ++;
+                var second = time;
+                var minute = 0;
+                while (second >= 60){
+                    second -= 60;
+                    minute ++;
+                }
+                minute = minute.toString(10);
+                second = second.toString(10);
+                while (minute.length < 2){
+                    minute = "0" + minute;
+                }
+                while (second.length < 2){
+                    second = "0" + second;
+                }
+                $("#timer").text(minute+":"+second);
+            }, 1000);
+        }
+        
+        //end of init
     }
     
     //rendering
