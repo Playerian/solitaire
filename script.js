@@ -347,7 +347,7 @@ $(document).ready(function(){
                         //check if clicked card is not on trash and foundation
                         if (card.inTrash() === false && card.inFound === false){
                             //then check if able to move
-                            if (holder.isDiffColor(card) && holder.isOneLower(card)){
+                            if (holder.isDiffColor(card) && holder.isOneLower(card) && card.getColumn()[card.getColumn().length - 1] === card){
                                 //if holder is on the field
                                 if (holder.inTrash() === false){
                                     //if so then move the the holder and cards under holder under the card
