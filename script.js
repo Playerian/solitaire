@@ -434,7 +434,7 @@ $(document).ready(function(){
             var card = cards[parseInt($(this).attr("id"))];
             console.log(card);
             //main function (just for quick use of return)
-            function mainDish(){
+            var mainDish = function(){
                 //check if card is face up
                 if (card.show === true){
                     //release a card if holding a card
@@ -510,7 +510,7 @@ $(document).ready(function(){
                     }
                     //end of if card is face up
                 }
-            }
+            };
             //just add a function to use return
             mainDish();
             
