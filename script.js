@@ -253,6 +253,9 @@ $(document).ready(function(){
         //render up
         render();
         
+        //reset timer
+        time = 0;
+        
         //only once
         if (beginned === false){
             beginned = true;
