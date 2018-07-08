@@ -512,7 +512,7 @@ $(document).ready(function(){
                 }
             };
             //just add a function to use return
-            mainDish();
+            console.log(mainDish());
             
             render();
         });
