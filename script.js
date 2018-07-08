@@ -24,6 +24,7 @@ $(document).ready(function(){
     var timer;
     var time = 0;
     var beginned = false;
+    var preventer = false;
     
     //misc functions
     function duang(thing, string){
@@ -587,7 +588,8 @@ $(document).ready(function(){
                         //then move the card to foundation
                         foundation.push(holder);
                         //remove holding status
-                        
+                        holding = false;
+                        holder = undefined;
                         render();
                     }
                 } else {
