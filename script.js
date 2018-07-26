@@ -410,6 +410,8 @@ $(document).ready(function(){
     
     //open the trash
     $("#trash").click(function(){
+        //record move
+        lastAct = "undefined,trash,undefined,undefined";
         //clear all selections
         holding = false;
         holder = undefined;
@@ -608,7 +610,11 @@ $(document).ready(function(){
                     //check if the card holding is an ace
                     if (parseInt(holder.number) === 1){
                         //record action
-                        lastAct = holder.name + "," + "found" + "," + "C"+holder.column + "R"+holder.row + "," + number;
+                        if (holder.inTrash() === true){
+                             lastAct = holder.name + "," + "found" + "," + "trash" +"," + number;
+                        } else {
+                            lastAct = holder.name + "," + "found" + "," + "C"+holder.column + "R"+holder.row + "," + number;
+                        }
                         //reset the card's position
                         holder.reset();
                         //then move the card to foundation
@@ -627,7 +633,11 @@ $(document).ready(function(){
                             //then check if the holder card is the last card at the column
                             if (getCardPos(holder.column, holder.row + 1) === undefined){
                                 //record action
-                                lastAct = holder.name + "," + "found" + "," + "C"+holder.column + "R"+holder.row + "," + number;
+                                if (holder.inTrash() === true){
+                                    lastAct = holder.name + "," + "found" + "," + "trash" +"," + number;
+                                } else {
+                                    lastAct = holder.name + "," + "found" + "," + "C"+holder.column + "R"+holder.row + "," + number;
+                                }
                                 //reset the card's position
                                 holder.reset();
                                 //then move holder to the foundation
@@ -657,6 +667,84 @@ $(document).ready(function(){
     //takeback!
     $("#tb").click(function(){
         console.log(lastAct);
+        if (lastAct !== undefined){
+            var code = lastAct.split(",");
+            console.log(code);
+            var name = code[0];
+            var action = code[1];
+            var prev = code[2];
+            var next = code[3];
+            //move action
+            if (action === "move"){
+                //aka move from anywhere to field
+                //from trash or found
+                if (prev === "trash" || prev.length === 1){
+                    //reset card
+                    cards[name].reset();
+                    //then push back to reveal
+                    if (prev === "trash"){
+                        reveal.push(parseInt(name));
+                    } else {
+                        //push back to foundation
+                        found["f"+prev].push(parseInt(name));
+                    }
+                    lastAct = undefined;
+                }
+                //from field
+                if (prev.length > 1){
+                    //get previous location
+                    var cPos = prev.indexOf("C");
+                    var rPos = prev.indexOf("R");
+                    //get the card's column
+                    var columnCards = cards[name].getColumn();
+                    var descend = [];
+                    //loop through the columns starting from the moved card
+                    for (var i = cards[name].row; i <= columnCards.length; i ++){
+                        //push any cards below the worked card to the array
+                        descend.push(columnCards[i - 1]);
+                    }
+                    console.log(descend);
+                    //send all cards back in time
+                    var targetRow = parseInt(prev.substring(cPos + 1, rPos));
+                    var targetColumn = parseInt(prev.substring(rPos + 1));
+                    console.log(targetRow);
+                    console.log(targetColumn);
+                    for (var i = targetRow; i < targetRow + descend.length; i ++){
+                        descend[i - targetRow].column = targetColumn;
+                        descend[i - targetRow].row = i;
+                    }
+                }
+            }
+            //trash action
+            if (action === "trash"){
+                //aka when trash is clicked
+                trash.unshift(reveal.pop());
+                lastAct = undefined;
+            }
+            //found action
+            if (action === "found"){
+                //aka move from anywhere to found
+                //if prev loaction is trash
+                if (prev === "trash"){
+                    //reset card
+                    cards[name].reset();
+                    //then push back to reveal
+                    reveal.push(parseInt(name));
+                    lastAct = undefined;
+                } else {
+                    //reset card
+                    cards[name].reset();
+                    //set to previous location
+                    var cPos = prev.indexOf("C");
+                    var rPos = prev.indexOf("R");
+                    cards[name].column = parseInt(prev.substring(cPos, rPos));
+                    cards[name].row = parseInt(prev.substring(rPos + 1));
+                    lastAct = undefined;
+                }
+            }
+        }
+        //render stuff
+        render();
     });
     
     //start the game
