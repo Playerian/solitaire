@@ -656,7 +656,7 @@ $(document).ready(function(){
     
     //takeback!
     $("#tb").click(function(){
-        
+        console.log(lastAct);
     });
     
     //start the game
