@@ -505,7 +505,7 @@ $(document).ready(function(){
                                         //same as trash
                                         duang(number, holder);
                                         //record moving act
-                                        lastAct = holder.name + "," + "move" + "," + number + "," + "C" + holder.column + "R" + holder.row;
+                                        lastAct = holder.name + "," + "move" + "," + holder.foundNo() + "," + "C" + holder.column + "R" + holder.row;
                                     }
                                 }
                                 //remove holding status
