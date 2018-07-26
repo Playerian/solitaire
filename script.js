@@ -261,7 +261,7 @@ $(document).ready(function(){
         
         //reset timer
         time = 0;
-        $("#timer").text("0");
+        $("#timer").text("00:00");
         
         //only once
         if (beginned === false){
@@ -703,16 +703,21 @@ $(document).ready(function(){
                         //push any cards below the worked card to the array
                         descend.push(columnCards[i - 1]);
                     }
-                    console.log(descend);
+                    console.log("descend: "+descend);
                     //send all cards back in time
                     var targetRow = parseInt(prev.substring(cPos + 1, rPos));
                     var targetColumn = parseInt(prev.substring(rPos + 1));
-                    console.log(targetRow);
-                    console.log(targetColumn);
                     for (var i = targetRow; i < targetRow + descend.length; i ++){
                         descend[i - targetRow].column = targetColumn;
                         descend[i - targetRow].row = i;
                     }
+                    console.log("getting pos");
+                    console.log(getCardPos(cards[name].column, cards[name].row - 1));
+                    //cover up the exposed card
+                    if (getCardPos(cards[name].column, cards[name].row - 1) !== undefined){
+                        getCardPos(cards[name].column, cards[name].row - 1).show = false;
+                    }
+                    lastAct = undefined;
                 }
             }
             //trash action
@@ -737,7 +742,7 @@ $(document).ready(function(){
                     //set to previous location
                     var cPos = prev.indexOf("C");
                     var rPos = prev.indexOf("R");
-                    cards[name].column = parseInt(prev.substring(cPos, rPos));
+                    cards[name].column = parseInt(prev.substring(cPos + 1, rPos));
                     cards[name].row = parseInt(prev.substring(rPos + 1));
                     lastAct = undefined;
                 }
