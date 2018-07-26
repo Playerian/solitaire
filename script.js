@@ -25,6 +25,11 @@ $(document).ready(function(){
     var time = 0;
     var beginned = false;
     var preventer = false;
+    //cardname,action,from,to
+    /*action list:
+    move found trash
+    */
+    var lastAct = "";
     
     //misc functions
     function duang(thing, string){
@@ -210,7 +215,7 @@ $(document).ready(function(){
         f4: []};
         reveal = [];
         holder = undefined;
-        holding = undefined;
+        holding = false;
         //card declare
         for (var i = 1; i <= 13; i ++){
             for (var i2 = 1; i2 <= 4; i2 ++){
@@ -256,6 +261,7 @@ $(document).ready(function(){
         
         //reset timer
         time = 0;
+        $("#timer").text("0");
         
         //only once
         if (beginned === false){
@@ -268,6 +274,7 @@ $(document).ready(function(){
                 window.holding = holding;
                 window.holder = holder;
                 window.found = found;
+                window.lastAct = lastAct;
                 //function
                 window.duang = duang;
                 window.columnHeight = columnHeight;
@@ -453,6 +460,8 @@ $(document).ready(function(){
                             if (holder.isDiffColor(card) && holder.isOneLower(card) && card.getColumn()[card.getColumn().length - 1] === card){
                                 //if holder is on the field
                                 if (holder.inTrash() === false && holder.inFound() === false){
+                                    var row = holder.row;
+                                    var column = holder.column;
                                     //if so then move the the holder and cards under holder under the card
                                     //put all cards under the holder into a list
                                     var list = [];
@@ -474,6 +483,8 @@ $(document).ready(function(){
                                         //set row below the card in a fast way
                                         list[i].row = card.row + i + 1;
                                     }
+                                    //record moving act
+                                    lastAct = holder.name + "," + "move" + "," + "C" + column + "R" + row + "," + "C" + holder.column + "R" + holder.row;
                                 } else {
                                     //if in trash then move directly to field
                                     if (holder.inTrash() === true){
@@ -481,13 +492,18 @@ $(document).ready(function(){
                                         holder.row = card.row + 1;
                                         //also remove holder in reveal pile
                                         duang(reveal, holder.name);
+                                        //record moving act
+                                        lastAct = holder.name + "," + "move" + "," + "trash" + "," + "C" + holder.column + "R" + holder.row;
                                     }
                                     //if in foundation then remove foundation status
                                     if (holder.inFound() === true){
+                                        var number = found["f"+holder.foundNo()];
                                         holder.column = card.column;
                                         holder.row = card.row + 1;
                                         //same as trash
-                                        duang(found["f"+holder.foundNo()], holder);
+                                        duang(number, holder);
+                                        //record moving act
+                                        lastAct = holder.name + "," + "move" + "," + number + "," + "C" + holder.column + "R" + holder.row;
                                     }
                                 }
                                 //remove holding status
@@ -512,8 +528,7 @@ $(document).ready(function(){
                 }
             };
             //just add a function to use return
-            console.log(mainDish());
-            
+            mainDish();
             render();
         });
     }
@@ -521,8 +536,10 @@ $(document).ready(function(){
     //move card to empty space (Kings only btw)
     $(".bottom").click(function(){
         var column = $(this).attr("id")[1];
+        
         //check if holding a card and is a king
         if (holding === true){
+            var row = holder.row;
             if (holder.number === 13){
                 //check if column is empty
                 if (columnHeight(column) === 0){
@@ -544,7 +561,14 @@ $(document).ready(function(){
                         list[i].column = parseInt(column);
                         list[i].row = i + 1;
                     }
-                    //if holder is in trash, remove from travel(or reveal)
+                    if (holder.inTrash() === true){
+                        lastAct = holder.name + "," + "move" + "," + "trash" + "," + "C" + holder.column + "R" + holder.row;
+                    } else if (holder.inFound() === true) {
+                        lastAct = holder.name + "," + "move" + "," + "found" + "," + "C" + holder.column + "R" + holder.row;
+                    } else {
+                        lastAct = holder.name + "," + "move" + "," + "C" + column + "R" + row + "," + "C" + holder.column + "R" + holder.row;
+                    }
+                    //if holder is in trash, remove from trash(or reveal)
                     if (holder.inTrash() === true){
                         duang(reveal, holder.name);
                     }
@@ -583,6 +607,8 @@ $(document).ready(function(){
                 if (foundation.length === 0){
                     //check if the card holding is an ace
                     if (parseInt(holder.number) === 1){
+                        //record action
+                        lastAct = holder.name + "," + "found" + "," + "C"+holder.column + "R"+holder.row + "," + number;
                         //reset the card's position
                         holder.reset();
                         //then move the card to foundation
@@ -600,6 +626,8 @@ $(document).ready(function(){
                         if (holder.suit === last.suit){
                             //then check if the holder card is the last card at the column
                             if (getCardPos(holder.column, holder.row + 1) === undefined){
+                                //record action
+                                lastAct = holder.name + "," + "found" + "," + "C"+holder.column + "R"+holder.row + "," + number;
                                 //reset the card's position
                                 holder.reset();
                                 //then move holder to the foundation
@@ -623,6 +651,11 @@ $(document).ready(function(){
                 }
             }
         }
+        
+    });
+    
+    //takeback!
+    $("#tb").click(function(){
         
     });
     
