@@ -450,7 +450,50 @@ $(document).ready(function(){
                     if (holding === true){
                         //check if holding the same card
                         if (card === holder){
-                            //if so remove holding status
+                            //check if can move to foundation
+                            for (var i = 4; i >= 1; i --){
+                                var foundation = found["f"+i];
+                                //check if not empty
+                                if (foundation.length > 0){
+                                    //get last card in foundation
+                                    var last = foundation[foundation.length - 1];
+                                    if (holder.isOneHigher(last)){
+                                        //then check if suits are the same
+                                        if (holder.suit === last.suit){
+                                            //then check if the holder card is the last card at the column
+                                            //or in trash
+                                            if (getCardPos(holder.column, holder.row + 1) === undefined || holder.inTrash() === true){
+                                                //record action
+                                                if (holder.inTrash() === true){
+                                                    lastAct = holder.name + "," + "found" + "," + "trash" +"," + number;
+                                                } else {
+                                                    lastAct = holder.name + "," + "found" + "," + "C"+holder.column + "R"+holder.row + "," + number;
+                                                }
+                                                //reset the card's position
+                                                holder.reset();
+                                                //then move holder to the foundation
+                                                foundation.push(holder);
+                                            }
+                                        }
+                                    }
+                                } else{
+                                    //if not empty
+                                    //if ace push to found
+                                    if (card.number === 1){
+                                        //record action
+                                        if (holder.inTrash() === true){
+                                            lastAct = holder.name + "," + "found" + "," + "trash" +"," + number;
+                                        } else {
+                                            lastAct = holder.name + "," + "found" + "," + "C"+holder.column + "R"+holder.row + "," + number;
+                                        }
+                                        //reset the card's position
+                                        holder.reset();
+                                        //then move holder to the foundation
+                                        foundation.push(holder);
+                                    }
+                                }
+                            }
+                            //remove holding status
                             holder = undefined;
                             holding = false;
                             return;
