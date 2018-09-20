@@ -20,7 +20,7 @@ $(document).ready(function(){
     };
     var height = 120;
     var width = 88;
-    var showPercentOfCard = 0.25;
+    var showPercentOfCard = 25;
     var timer;
     var time = 0;
     var beginned = false;
@@ -337,7 +337,7 @@ $(document).ready(function(){
                         element.attr("src", "cards/back.png");
                     }
                     //add height to each cards
-                    element.css("top", (i2 - 1) * (1 - showPercentOfCard) * height * -1+"px");
+                    element.css("top", (i2 - 1) * (100 - showPercentOfCard) / 100 * height * -1+"px");
                     //add z-axis to each cards
                     element.css("z-index", i);
                     //add highlight if holder is same 
@@ -792,6 +792,12 @@ $(document).ready(function(){
             }
         }
         //render stuff
+        render();
+    });
+    
+    //when input changes
+    $("#showPercent").on("input", function(e) {
+        showPercentOfCard = parseInt($("#showPercent").val());
         render();
     });
     
